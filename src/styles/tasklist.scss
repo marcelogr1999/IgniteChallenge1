@@ -57,6 +57,11 @@ section.task-list {
         &:hover {
           filter: brightness(0.95);
         }
+
+        &:disabled {
+          filter: opacity(0.50);
+          cursor: default;
+        }
       }
     }
   }

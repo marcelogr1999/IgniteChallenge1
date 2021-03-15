@@ -1,29 +1,38 @@
-import { useState } from 'react'
+import { useState } from 'react';
 
 import '../styles/tasklist.scss'
 
-import { FiTrash, FiCheckSquare } from 'react-icons/fi'
-
-interface Task {
-  id: number;
-  title: string;
-  isComplete: boolean;
-}
+import { FiTrash, FiCheckSquare } from 'react-icons/fi';
 
 export function TaskList() {
+  interface Task {
+    id: number;
+    title: string;
+    isComplete: boolean;
+  }
+  
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTaskTitle, setNewTaskTitle] = useState('');
 
-  function handleCreateNewTask() {
-    // Crie uma nova task com um id random, não permita criar caso o título seja vazio.
+  function handleCreateNewTask(event: React.FormEvent<HTMLElement>) {
+    event.preventDefault();
+
+    const task:Task = {
+      id: Math.floor(Math.random() * 1000),
+      title: newTaskTitle,
+      isComplete: false
+    }
+
+    setTasks([...tasks, task]);
+    setNewTaskTitle('');
   }
 
   function handleToggleTaskCompletion(id: number) {
-    // Altere entre `true` ou `false` o campo `isComplete` de uma task com dado ID
+    setTasks(tasks.map(task => id === task.id ? {...task, isComplete: !task.isComplete } : task));
   }
 
   function handleRemoveTask(id: number) {
-    // Remova uma task da listagem pelo ID
+    setTasks(tasks.filter(task => task.id !== id ));
   }
 
   return (
@@ -31,17 +40,17 @@ export function TaskList() {
       <header>
         <h2>Minhas tasks</h2>
 
-        <div className="input-group">
+        <form className="input-group" onSubmit={(event: React.FormEvent<HTMLElement>) => handleCreateNewTask(event)}>
           <input 
             type="text" 
             placeholder="Adicionar novo todo" 
             onChange={(e) => setNewTaskTitle(e.target.value)}
             value={newTaskTitle}
           />
-          <button type="submit" data-testid="add-task-button" onClick={handleCreateNewTask}>
+          <button type="submit" disabled={newTaskTitle.length === 0} data-testid="add-task-button" >
             <FiCheckSquare size={16} color="#fff"/>
           </button>
-        </div>
+        </form>
       </header>
 
       <main>
@@ -60,7 +69,6 @@ export function TaskList() {
                 </label>
                 <p>{task.title}</p>
               </div>
-
               <button type="button" data-testid="remove-task-button" onClick={() => handleRemoveTask(task.id)}>
                 <FiTrash size={16}/>
               </button>
